@@ -87,7 +87,7 @@ Function Write-DTMetric {
     Invoke-RestMethod -Method Post -Headers $headersdt -ContentType 'text/plain' -Uri $uridt -Body $body 
 } 
 
-Function Get-DTBearerToken ($grant_type, $client_id, $client_secret,$scope, $resource) {
+Function Get-DTBearerToken ($grant_type, $client_id, $client_secret,$scope, $resource,$dtssourl) {
 
     $headers = [ordered]@{'grant_type' = $grant_type
                        'client_id' = $client_id
@@ -97,7 +97,7 @@ Function Get-DTBearerToken ($grant_type, $client_id, $client_secret,$scope, $res
                        'resource' = $resource} 
 
     
-    $result = Invoke-RestMethod -Method post -Uri 'https://sso-sprint.dynatracelabs.com/sso/oauth2/token' -body $headers -ContentType 'application/x-www-form-urlencoded'
+    $result = Invoke-RestMethod -Method post -Uri "https://$dtssourl/sso/oauth2/token" -body $headers -ContentType 'application/x-www-form-urlencoded'
 
 
 
