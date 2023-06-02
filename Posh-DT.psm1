@@ -86,3 +86,33 @@ Function Write-DTMetric {
 
     Invoke-RestMethod -Method Post -Headers $headersdt -ContentType 'text/plain' -Uri $uridt -Body $body 
 } 
+
+Function Get-DTBearerToken ($grant_type, $client_id, $client_secret,$scope, $resource) {
+
+    $headers = [ordered]@{'grant_type' = $grant_type
+                       'client_id' = $client_id
+                       'client_secret' = [System.Web.HttpUtility]::UrlEncode($client_secret)
+                       #'Accept' = 'application/x-www-form-urlencoded, application/json'
+                       #'scope' = $scope
+                       'resource' = $resource} 
+
+    
+    $result = Invoke-RestMethod -Method post -Uri 'https://sso-sprint.dynatracelabs.com/sso/oauth2/token' -body $headers -ContentType 'application/x-www-form-urlencoded'
+
+
+
+    return $result
+}
+
+
+Function Write-DTBusinessEvent ($dtfqdn,$bearertoken,$json){
+    $headers = [ordered]@{'Authorization' = "Bearer $bearertoken"}
+
+
+    $result = Invoke-RestMethod -Method post -Uri "https://$dtfqdn/api/v2/bizevents/ingest" -Headers $headers -Body $json -ContentType 'application/json' #-body $headers
+
+
+
+    return $result
+
+} 
