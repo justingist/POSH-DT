@@ -56,3 +56,33 @@ Write-Host $loguri
     Invoke-RestMethod -Uri $loguri -Headers $headersdtlog -ContentType 'application/json; charset=utf-8' -Method Post -Body $logmessage
     write-host "DTLOG.$level : $message"
 }
+
+Function Write-DTMetric {
+    Param([parameter(Mandatory=$true)]$metricname,
+    [parameter(Mandatory=$true)]$value,
+    [parameter(Mandatory=$false)][hashtable]$dimensions,
+    [parameter(Mandatory=$false)]$dturl,
+    [parameter(Mandatory=$true)]$apikeyname)
+
+    $dtconfig = Load-DTConfig -dturl $dturl -apikeyname $apikeyname
+    $ingestionkey = $dtconfig.GetNetworkCredential().Password
+
+
+    $uridt = ($dtconfig.username -replace '\/$','') +"/api/v2/metrics/ingest"
+
+
+    $headersdt = [ordered]@{
+    "Authorization" = "Api-Token $ingestionkey"
+    }   
+
+    if ($dimensions){
+
+    $dimensionsflat = ''
+    foreach ($key in $dimensions.keys){ $dimensionsflat += ',' + $key + "=" + $dimensions.$key}
+
+
+    }   
+    $body =  $metricname + $dimensionsflat + ' ' + $value
+
+    Invoke-RestMethod -Method Post -Headers $headersdt -ContentType 'text/plain' -Uri $uridt -Body $body 
+} 
